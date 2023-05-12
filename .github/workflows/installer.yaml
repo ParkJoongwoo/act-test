@@ -1,0 +1,109 @@
+name: build installer
+
+on:
+  push:
+
+jobs:
+  set-version:
+    runs-on: ubuntu-latest
+#    outputs:
+#      version: ${{ steps.tag.outputs.tag }}
+    steps:
+      - name: test action locally
+        uses: ./
+
+#      - uses: oprypin/find-latest-tag@v1.1.1
+#        with:
+#          repository: DeepingSource/lite-tracker
+#          releases-only: true
+#        id: tag
+
+#  make-installer:
+#    runs-on: ubuntu-latest
+#    needs: set-version
+#    env:
+#      G_PLATFORM_INSTALLER_NAME: lite-tracker-installer-${{ needs.set-version.outputs.version }}.run
+#      D_PLATFORM_REPO: 843199118161.dkr.ecr.ap-northeast-2.amazonaws.com/mtmc-deepstream
+#      ANALYSIS_REPO: 843199118161.dkr.ecr.ap-northeast-2.amazonaws.com/mtmc-analysis
+#      D_PLATFORM_TAG: 843199118161.dkr.ecr.ap-northeast-2.amazonaws.com/mtmc-deepstream:${{ inputs.d_platform_version }}
+#      ANALYSIS_TAG: 843199118161.dkr.ecr.ap-northeast-2.amazonaws.com/mtmc-analysis:${{ inputs.analysis_version }}
+#      INSTALLER_NAME: pi-d-platform-analysis-installer-${{ inputs.d_platform_version }}-${{inputs.analysis_version}}-${{inputs.analysis_mode}}-${{inputs.analysis_output}}.run
+#    steps:
+#      - name: print version
+#        run: |
+#          echo "g platform version: ${{ env.G_PLATFORM_INSTALLER_NAME }}"
+#          echo "d platform version: ${{inputs.d_platform_version}}"
+#          echo "analysis version: ${{inputs.analysis_version}}"
+#          echo "analysis mode: ${{inputs.analysis_mode}}"
+#          echo "analysis output: ${{inputs.analysis_output}}"
+#
+#      - uses: actions/setup-python@v4
+#        with:
+#          python-version: 3.8
+#
+#      - uses: actions/checkout@v3
+#
+#
+#
+#      - name: Copy lite-tracker from s3
+#        run: |
+#          aws s3 cp --no-progress s3://deepingsource-mtmc/installer/release/${{ env.G_PLATFORM_INSTALLER_NAME }} .
+#        env:
+#          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+#          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
+#          AWS_DEFAULT_REGION: ap-northeast-2
+#
+#      - name: Login to ECR
+#        uses: docker/login-action@v2
+#        with:
+#          registry: 843199118161.dkr.ecr.ap-northeast-2.amazonaws.com
+#          username: ${{ secrets.AWS_ACCESS_KEY }}
+#          password: ${{ secrets.AWS_SECRET_KEY }}
+#
+#      - name: Load docker images
+#        run: |
+#          docker pull -q ${{ env.D_PLATFORM_TAG }}
+#          docker pull -q ${{ env.ANALYSIS_TAG }}
+#          docker pull -q confluentinc/cp-zookeeper:7.3.3
+#          docker pull -q confluentinc/cp-kafka:7.3.3
+#
+#      - name: save image
+#        run: |
+#          mkdir -p build
+#          cd build
+#          cp
+#          docker save ${{ env.ANALYSIS_TAG }} > analysis.tar
+#          docker save ${{ env.D_PLATFORM_TAG }} > deepstream.tar
+#          docker save confluentinc/cp-zookeeper:7.3.3 > zookeeper.tar
+#          docker save confluentinc/cp-kafka:7.3.3 > kafka.tar
+#          cp /home/data/nvidia/cuda_12.1.1_530.30.02_linux.run .
+#
+#          cd -
+#          mv install.sh docker_compose_generator.py build
+#
+#          curl -fsSL https://github.com/megastep/makeself/releases/download/release-2.4.5/makeself-2.4.5.run -o makeself.run
+#          bash makeself.run --target makeself
+#
+#          chmod +x build/install.sh
+#          ./makeself/makeself.sh --tar-format posix build ${{ env.INSTALLER_NAME}} "MTMC installer ${{ inputs.d_platform_version }}/${{inputs.analysis_version}}" ./install.sh ${{ env.D_PLATFORM_TAG }} ${{ env.ANALYSIS_TAG }} ${{ inputs.analysis_mode }} ${{ inputs.analysis_output }}
+#
+#      - name: copy to s3
+#        run: |
+#          aws s3 cp --no-progress ${{ env.INSTALLER_NAME}} s3://deepingsource-mtmc/installer/
+#        env:
+#          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+#          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
+#          AWS_DEFAULT_REGION: ap-northeast-2
+#
+#      - name: log version info
+#        run: |
+#          pip3 install notion-client docker
+#          python3 log_image_hash.py -k "${{ secrets.NOTION_BOT_TOKEN }}" --db "${{ secrets.NOTION_IMAGE_DB }}" -dv "${{ inputs.d_platform_version }}" -av "${{inputs.analysis_version}}" -d "${{ env.D_PLATFORM_REPO }}" -a "${{ env.ANALYSIS_REPO }}"
+#
+#      - name: Slack Notification
+#        if: always()
+#        uses: rtCamp/action-slack-notify@v2
+#        env:
+#          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+#          SLACK_MESSAGE: "DONE build installer ${{ job.status }}"
+#          SLACK_COLOR: ${{ job.status }}
